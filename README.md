@@ -1,6 +1,6 @@
 # d3js-vebinar
 
-## Використані приклади з d3.graph gallery
+## Використані приклади з D3.js Graph Gallery
 
 ### Стовпчикові графіки
 
