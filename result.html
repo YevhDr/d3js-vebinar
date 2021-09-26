@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>D3.js</title>
+</head>
+<style>
+    body {
+        margin: 0;
+        font-family: sans-serif;
+    }
+
+    header {
+        height: 50vh;
+        margin-bottom: 100px;
+        display: flex;
+        background-color: rgba(105, 179, 162, 0.5);        
+        /* background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), url('img/cover.png');
+         background-image: url('img/cover.png');*/
+        background-size: cover;
+    }
+
+    header #title {
+        margin: auto;
+        text-align: center;
+    }
+
+    header #title h1 {
+        font-size: 50px;
+    }
+
+    header #title h3 {
+        font-size: 30px;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    main {
+        width: 90%;
+        max-width: 800px;
+        margin: 10px auto 100px;
+    }
+
+    main > p {
+        font-size: 18px;
+        line-height: 1.6;
+        
+        margin: 10px auto;
+    }
+
+    /* стилізуємо графік */
+
+    #chart-1 {
+        margin: auto;
+        max-width: 700px;
+    }
+
+    .row {
+        display: flex;
+        align-items:center ;
+    }
+
+    .name {
+        width: 300px;
+        text-align: right;
+        margin: 0 10px 0 0;
+    }
+
+    .bar {
+        height: 10px;
+        background-color: red;        
+    }
+
+    .label {
+        margin: 0 0 0 10px;
+        text-align: left;
+    }
+
+    #chart-1 .tick text {
+        font-size: 16px;
+    }
+
+    @media(max-width: 800px){
+        .tick text {
+            font-size: 20px;
+     }
+    } 
+
+</style>
+<body>
+    <script src="lib/d3v5_min.js"></script>
+
+  <header>
+    <div id="title">
+        <h1>Електронні аукціони деревини</h1>
+        <h3>Чи «прозорішає» український ринок?</h3>
+    </div>
+  </header>
+
+  <main>
+    <p>Уряд готує масштабну реформу ринку деревини. Міндовкілля пропонує лісгоспам продавати необроблену деревину виключно через відкриті електронні аукціони. Це зробить ринок прозорішим та зручнішим для всіх, а також виведе значні суми коштів із тіні. Минулого року уряд запустив «пілот» цієї реформи, зобов’язавши великі лісгоспи реалізувати щонайменше 25% від своєї лісозаготівлі через відкриті аукціони системи Prozorro.Продажі. У цьому проекті ми аналізуємо відкриті дані Prozorro.Продажі та розповідаємо наскільки успішним був урядовий експеримент із запуску відкритих електронних торгів.</p>
+
+    <p>Щорічно державні лісогосподарські підприємства (лісгоспи) заготовляють понад 15 мільйонів куб. м ліквідної деревини. Що з нею відбувається далі – сказати важко, адже в Україні фактично відсутній прозорий та конкурентний ринок деревини.</p>
+
+    <p>Донедавна лісгоспи реалізовували переважну більшість деревини за допомогою «прямих договорів» із покупцями-деревообробниками. Це дозволяло лісгоспам отримувати швидкі доходи, щоб латати дірки у бюджетах, та водночас не надто перейматися власною ефективністю. Деревообробні підприємства натомість отримували стабільний та передбачуваний потік сировини, щоб завантажувати свої виробничі потужності.</p>
+
+    <h2>Динаміка кількості аукціонів по місяцях</h2>
+
+    <select id="selectButton"></select>
+    <div id="chart-0"></div>
+
+    <p>Така схема господарювання забезпечила виживання українській лісовій галузі під час розвалу Радянського Союзу, але її збереження продовжить гальмувати економічний розвиток держави та породжувати значні корупційні ризики. Укладання прямих договорів унеможливлює рівний доступ усіх покупців до ресурсу та спотворює формування ринкових цін на деревину. Врешті-решт, за прямими договорами важко обліковувати реальні обсяги ринку деревини. Це дає змогу недоброчесним деревообробникам та корумпованим лісгоспам організовувати «схеми» з торгівлі незаконно зрубаною деревиною і таким чином ухилятися від сплати податків та перенаправляти тіньові потоки готівки до власних кишень замість державних та місцевих бюджетів.</p>
+
+    <p>Наприкінці 2019 року уряд зробив важливий крок щодо реформування ринку деревини та розпочав експериментальний проєкт із впровадження відкритих електронних аукціонів у цій сфері. Йдеться про Постанову №1178 Кабміну, що зобов’язує великі лісгоспи продавати щонайменше 25% від обсягу своєї заготівлі за допомогою електронної торгової системи Prozorro.Продажі.</p>
+
+    <h2>Лісові господарства Волинської області</h2>
+
+
+
+    <button id="show-auctions">Усього</button>
+    <button id="show-complete">Успішних</button>
+    <div id="chart-1"></div>
+
+
+    <p>Висока успішність аукціонів та активна залученість окремих лісгоспів до електронних торгів у системі Prozorro.Продажі були радше винятком, ніж загальним правилом. Постанова №1178 не зобов’язувала лісгоспи виставляти весь об’єм лісозаготівлі на електронні майданчики Prozorro.Продажі, а тому чимало лісгоспів вирішили притримати якіснішу деревину та виставляли її на продаж на інших електронних біржах, що не передають дані до Prozorro.Продажі. </p>
+
+    <p>Волинський підприємець Олександр Місюра каже, що аукціони на таких майданчиках часто нічим не відрізняються від старої системи «прямих договорів», навіть попри те, що проводяться в електронній формі. За словами Місюри, організатори аукціонів поза системою Prozorro.Продажі не прагнуть до відкритості, можуть маніпулювати умовами торгів, підлаштовуючи їх під певного покупця, а подекуди взагалі не допускають «незручні» компанії до участі в аукціонах. Фактично це елементи шантажу підприємців з боку лісгоспів та обласних управлінь Держлісагентства. Адже специфіка лісопереробного бізнесу передбачає стабільний потік сировини, а простій підприємства веде до значних збитків та може загрожувати закриттям.</p>
+
+    <p>Попри всі негаразди, торішній експеримент Кабміну показав, що в українській лісовій галузі є значний інтерес до реформи ринку деревини. Наприклад, Закарпатській облдержадміністрації співпраця з Prozorro.Продажі настільки сподобалася, що її представники з власної ініціативи вирішили сприяти поширенню електронних торгів на 100% продажу деревини в області. Була укладена тристороння угода між ДП «Прозорро.Продажі», Закарпатською ОДА та обласним управлінням лісового та мисливського господарства. Лісгоспи наростили кількість та якість аукціонів, а платформа Prozorro.Продажі знизила розмір комісії за участь у них. Це одразу ж позначилось на успішності аукціонів закарпатських лісгоспів та зростанні їхніх офіційних доходів у декілька разів.</p>
+</main>
+
+  
+    <script>
+
+        /* line-chart */
+
+        d3.csv("data/data2.csv").then(function(data){
+            console.log(data);
+
+            var parseDate = d3.timeParse("%Y-%m-%d");
+            var formatDate = d3.timeFormat("%m/%y")
+
+            data.forEach(function(d){
+                d.month = parseDate(d.month);
+                d.value = +d.value;               
+            })  
+
+            const allgroups = [
+                {"key": "number", 'value':"Загалом"},
+                {"key": "success", 'value':"Успішних"}
+            ]
+            
+
+            d3.select("#selectButton")
+                .selectAll('myOptions')
+     	        .data(allgroups)
+                .enter()
+    	        .append('option')
+                .text(function (d) { return d.value; }) // text showed in the menu
+                .attr("value", function (d) { return d.key; })
+
+           
+            var margin = {top: 50, right: 50, bottom: 50, left: 100},
+                width = 700 - margin.left - margin.right,
+                height = 400 - margin.top - margin.bottom;
+            
+
+            const filtered = data.filter(function(d){
+                return d.group == "number"
+            })            
+            
+            const svg = d3.select("#chart-0")
+                .append("svg")
+                .attr("width", "100%")
+                .attr("height", "100%")
+                .attr("viewBox", "0 0 " + (width + margin.left + margin.right) + " " + (height + margin.top + margin.bottom))
+                .append("g")
+                .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+            // console.log(filtered);
+
+            var x = d3.scaleTime()
+                .domain(d3.extent(filtered, function(d) { return d.month; }))
+                .range([ 0, width ]);
+
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x)
+                    .tickFormat(formatDate)
+                    );
+
+            // Add Y axis
+            var y = d3.scaleLinear()
+                .domain([0, d3.max(filtered, function(d) { return d.value; })])
+                .range([ height, 0 ]);
+            
+            svg.append("g")
+                .attr("class", "yAxis")
+                .call(d3.axisLeft(y)
+                //.tickFormat(d3.format(".0s"))
+                );
+
+            var line = svg
+                .append('g')
+                .append("path")
+                .datum(filtered)
+                .attr("d", d3.line()
+                    .x(function(d) { return x(+d.month) })
+                    .y(function(d) { return y(+d.value) })
+                )
+                .attr("stroke", "#69b3a2")
+                .style("stroke-width", 3)
+                .style("fill", "none")
+
+            function update(selectedGroup) {
+                // Create new data with the selection?
+                var dataFilter = data.filter(function(d) { return d.group === selectedGroup })
+
+                y.domain([0, d3.max(dataFilter, function(d) { return d.value; })])
+
+                svg.select(".yAxis")
+                    .transition()
+                    .duration(1000)
+                    .call(d3.axisLeft(y))
+
+                // Give these new data to update line
+                line
+                        .datum(dataFilter)
+                        .transition()
+                        .duration(1000)
+                        .attr("d", d3.line()
+                        .x(function(d) { return x(+d.month) })
+                        .y(function(d) { return y(+d.value) })
+                        )
+                        .attr("stroke", "#69b3a2")
+                }
+
+
+            d3.select("#selectButton").on("change", function(d) {
+                var selectedOption = d3.select(this).property("value")
+                update(selectedOption)
+            });
+        });
+
+
+
+
+        /* bar-chart */
+        d3.csv("data/data.csv").then(function(data){
+
+            // console.log(data);
+
+            data.forEach(function(d){
+                d.auctions = +d.auctions;
+                d.complete = +d.complete;
+            })
+
+           // console.log(data);
+            
+            const filtered = data.filter(function(d){
+                return d.region == "Волинська"
+            })
+
+            const auctions = filtered.map(function(d){ 
+                return {"x": d.auctions, "user_company":d.user_company }   
+            })
+            auctions.sort(function(a,b){ return b.x - a.x; })
+
+            console.log(auctions);
+
+            const complete = filtered.map(function(d){ 
+                return {"x": d.complete, "user_company":d.user_company }   
+            })
+           
+
+            // console.log(filtered);
+
+            var margin = {top: 50, right: 50, bottom: 50, left: 250},
+                width = 700 - margin.left - margin.right,
+                height = 700 - margin.top - margin.bottom;
+
+
+            const svg = d3.select("#chart-1")
+                .append("svg")
+               /*  .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom) */
+                .attr("width", "100%")
+                .attr("height", "100%")
+                .attr("viewBox", "0 0 " + (width + margin.left + margin.right) + " " + (height + margin.top + margin.bottom))
+                .append("g")
+                .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+            var x = d3.scaleLinear()
+                .domain([0, d3.max(auctions, function(d){return d.x})])
+                .range([ 0, width]);
+
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x))
+                
+            
+            var y = d3.scaleBand()
+                .range([ 0, height ])
+                .domain(auctions.map(function(d) { return d.user_company; }))
+                .padding(.2);
+
+            svg.append("g")
+                .attr("class", "y-axis")
+                .call(d3.axisLeft(y))
+
+            function update(df) {
+
+                df.sort(function(a,b){ return b.x - a.x; })
+
+                y.domain(df.map(function(d) { return d.user_company; }))
+               
+                svg.select(".y-axis")
+                    .transition()
+                    .duration(1000)
+                    .call(d3.axisLeft(y))
+
+                var u = svg.selectAll("rect")
+                    .data(df)
+
+                u
+                .enter()
+                .append("rect")
+                .merge(u)
+                .transition()
+                .duration(1000)
+                    .attr("x", 0 )
+                    .attr("y", function(d) { return y(d.user_company); })
+                    .attr("width", function(d) { return x(d.x); })
+                    .attr("height", y.bandwidth() )
+                    .attr("fill", "#69b3a2")
+            }
+
+            update(auctions)  
+
+        d3.select("#show-auctions").on("click", function(){
+            // console.log("auctions")
+            update(auctions)  
+        })
+
+        d3.select("#show-complete").on("click", function(){
+            // console.log("complete")
+            update(complete)  
+        })
+
+           /*  svg.selectAll("myRect")
+                .data(filtered)
+                .enter()
+                .append("rect")
+                .attr("x", x(0) )
+                .attr("y", function(d) { return y(d.user_company); })
+                .attr("width", function(d) { return x(d.auctions); })
+                .attr("height", y.bandwidth() )
+                .attr("fill", "#69b3a2") */
+
+ 
+          /*   var row = d3.select("#chart-1")               
+                .selectAll("p")
+                .data(filtered)
+                .enter()
+                .append("div")
+                .attr('class', "row");
+
+            row
+                .append("p")
+                .attr("class","name")
+                .text(function(d){  return d.user_company });
+               
+            row 
+                .append("div")
+                .attr("class","bar")                
+                .style("width", function(d){ return d.auctions*2 + "px"; });
+                
+            row
+                .append("p")
+                .text(function(d){ return d.auctions }) 
+                .attr("class", "label"); */
+
+
+           
+                
+             
+ 
+               
+
+            
+        });
+
+
+
+    </script>
+
+</body>
+</html>
