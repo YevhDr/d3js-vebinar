@@ -1,5 +1,9 @@
 # d3js-vebinar
 
+## Документація D3.js
+
+https://d3js.org/
+
 ## Використані приклади з D3.js Graph Gallery
 
 ### Стовпчикові графіки
