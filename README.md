@@ -4,6 +4,10 @@
 
 https://d3js.org/
 
+## CDN
+[d3 v 5.15.0](https://cdnjs.cloudflare.com/ajax/libs/d3/5.15.0/d3.js)
+
+
 
 ## Програмне забезпечення:
 
