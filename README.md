@@ -1,4 +1,4 @@
-# d3js-vebinar
+# d3js-webinar
 
 ## Документація D3.js
 
